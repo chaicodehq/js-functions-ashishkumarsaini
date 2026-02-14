@@ -45,17 +45,70 @@
  *   // => [{ rating: 5 }, { rating: 3 }]
  */
 export function createFilter(field, operator, value) {
-  // Your code here
+  return (dataObj) => {
+    if (!Object.hasOwn(dataObj, field)) {
+      return false
+    };
+
+    const dataValue = dataObj[field];
+
+    switch (operator) {
+      case '>': return dataValue > value;
+      case '<': return dataValue < value;
+      case '>=': return dataValue >= value;
+      case '<=': return dataValue <= value;
+      case '===': return dataValue === value;
+      default: return false;
+    }
+  }
 }
 
 export function createSorter(field, order = "asc") {
-  // Your code here
+  return (obj1, obj2) => {
+    const field1 = obj1[field];
+    const field2 = obj2[field];
+
+    if (typeof field1 === 'string') {
+      return order === 'asc' ? field1.localeCompare(field2) : field2.localeCompare(field1)
+    }
+
+    return order === 'asc' ? field1 - field2 : field2 - field1
+
+  }
 }
 
 export function createMapper(fields) {
-  // Your code here
+  return (obj) => {
+    const newObj = {};
+
+    fields.forEach((field) => {
+      newObj[field] = obj[field];
+    })
+
+    return newObj;
+  }
 }
 
 export function applyOperations(data, ...operations) {
-  // Your code here
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  if (!operations.length) {
+    return data;
+  }
+
+  const apply = (dataProvided, operationsProvided) => {
+    if (operationsProvided.length <= 0) {
+      return dataProvided;
+    }
+
+    const operation = operationsProvided[0];
+
+    const calculatedData = operation(dataProvided);
+
+    return apply(calculatedData, operationsProvided.slice(1))
+  }
+
+  return apply(data, operations);
 }

@@ -53,29 +53,86 @@
  *   // => { name: "Haldi", form: "powder", packed: true, label: "Haldi Masala" }
  */
 export function pipe(...fns) {
-  // Your code here
+  return (x) => {
+
+    const apply = (value, applyfns) => {
+      if (applyfns.length <= 0) {
+        return value;
+      }
+
+      const applyfn = applyfns[0];
+
+      const calcValue = applyfn(value);
+
+      return apply(calcValue, applyfns.slice(1))
+    }
+
+    return apply(x, fns);
+  }
 }
 
 export function compose(...fns) {
-  // Your code here
+  return (x) => {
+    const apply = (value, applyfns) => {
+      if (applyfns.length <= 0) {
+        return value;
+      }
+
+      const [applyfn] = applyfns.slice(-1);
+      const calcValue = applyfn(value);
+
+      return apply(calcValue, applyfns.slice(0, -1))
+    }
+
+    return apply(x, fns);
+  }
 }
 
 export function grind(spice) {
-  // Your code here
+  return { ...spice, form: "powder" };
 }
 
 export function roast(spice) {
-  // Your code here
+  return { ...spice, roasted: true, aroma: "strong" };
 }
 
 export function mix(spice) {
-  // Your code here
+  return { ...spice, mixed: true };
 }
 
 export function pack(spice) {
-  // Your code here
+  return { ...spice, packed: true, label: `${spice.name} Masala` };
 }
 
 export function createRecipe(steps) {
-  // Your code here
-}
+  if (!Array.isArray(steps) || !steps.length) {
+    return (steps) => steps;
+  }
+
+  return (value) => {
+    const recipieFns = steps.map((step) => {
+      switch (step) {
+        case "grind": return grind
+        case "roast": return roast
+        case "mix": return mix
+        case "pack": return pack
+        default: return null
+      }
+    }).filter(Boolean);
+
+    const apply = (applyValue, applyfns) => {
+
+      if (applyfns.length <= 0) {
+        return applyValue;
+      }
+
+      const [applyfn] = applyfns.slice(0);
+
+      const calcValue = applyfn(applyValue);
+
+      return apply(calcValue, applyfns.slice(1))
+    }
+
+    return apply(value, recipieFns);
+  }
+};

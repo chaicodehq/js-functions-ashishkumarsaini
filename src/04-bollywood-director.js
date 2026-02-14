@@ -45,13 +45,63 @@
  *   pricer("gold", true)  // => 200 * 1.5 * 1.3 = 390
  */
 export function createDialogueWriter(genre) {
-  // Your code here
+  const genreType = {
+    action: 'action',
+    romance: 'romance',
+    comedy: 'comedy',
+    drama: 'drama'
+  }
+
+  if (!genre || !Object.hasOwn(genreType, genre)) {
+    return null;
+  }
+
+  return (hero, villain) => {
+    if (!hero || !villain) {
+      return '...';
+    }
+
+    switch (genre) {
+      case genreType.action: return `${hero} says: 'Tujhe toh main dekh lunga, ${villain}!'`
+      case genreType.romance: return `${hero} whispers: '${villain}, tum mere liye sab kuch ho'`
+      case genreType.comedy: return `${hero} laughs: '${villain} bhai, kya kar rahe ho yaar!'`
+      case genreType.drama: return `${hero} cries: '${villain}, tune mera sab kuch cheen liya!'`
+      default:
+        return null;
+    }
+  }
 }
 
 export function createTicketPricer(basePrice) {
-  // Your code here
+  if (basePrice <= 0) {
+    return null;
+  }
+
+  const seatMultiplier = {
+    silver: 1, gold: 1.5, platinum: 2
+  }
+
+  return (seatType, isWeekend) => {
+    if (!Object.hasOwn(seatMultiplier, seatType)) {
+      return null;
+    }
+
+    const seatPrice = seatMultiplier[seatType] * basePrice;
+
+    return isWeekend ? seatPrice * 1.3 : seatPrice
+  }
 }
 
 export function createRatingCalculator(weights) {
-  // Your code here
+  if (!weights || typeof weights !== 'object') {
+    return null;
+  }
+
+  return (scores) => {
+    const sumOfWeightedScores = Object.entries(scores).reduce((acc, [name, score]) => {
+      return acc + (weights[name] * score);
+    }, 0);
+
+    return sumOfWeightedScores
+  };
 }

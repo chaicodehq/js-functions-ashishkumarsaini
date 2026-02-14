@@ -49,5 +49,64 @@
  *   // => { name: "Ram", area: "Dadar", total: 2, completed: 1, pending: 1, successRate: "50.00%" }
  */
 export function createDabbawala(name, area) {
-  // Your code here
+  const deliveryStatus = { pending: 'pending', completed: 'completed' }
+  let deliveries = [];
+  let deliveryCount = 0;
+
+  return {
+    addDelivery: (from, to) => {
+      if (!from || !to) {
+        return -1;
+      }
+
+      const newDeliveryId = deliveryCount + 1
+      const newDelivery = { id: newDeliveryId, from, to, status: deliveryStatus.pending }
+
+      deliveryCount = newDeliveryId;
+      deliveries.push(newDelivery);
+
+      return newDelivery.id;
+    },
+    completeDelivery: (id) => {
+      const delivery = deliveries.find((del) => del.id === id);
+
+      if (!delivery || delivery.status === deliveryStatus.completed) {
+        return false;
+      }
+
+
+      deliveries = deliveries.map((delivery) => {
+        if (delivery.id === id) {
+          return { ...delivery, status: deliveryStatus.completed }
+        }
+        return delivery;
+      });
+
+      return true;
+    },
+    getActiveDeliveries: () => {
+      return deliveries.filter((delivery) => delivery.status === deliveryStatus.pending);
+    },
+    getStats: () => {
+      const total = deliveries.length;
+      const pending = deliveries.filter((delivery) => delivery.status === deliveryStatus.pending).length;
+      const completed = total - pending;
+
+      const successRate = (completed ? (completed / total) * 100 : 0).toFixed(2);
+
+      return {
+        name,
+        area,
+        total,
+        completed,
+        pending,
+        successRate: `${successRate}%`
+      };
+    },
+    reset: () => {
+      deliveries = [];
+      deliveryCount = 0;
+      return true;
+    },
+  }
 }
